@@ -38,12 +38,13 @@ class Scraper:
         response = url
         return response
         
-    def query_call(self, values, columns, table, constraint):
-        query = f'''INSERT INTO {table} ({', '.join(columns)})
-                    VALUES ({', '.join(['?'] * len(columns))})
-                    ON CONFLICT ({constraint}, season) DO UPDATE
-                    SET
-                    {', '.join([f"{column} = EXCLUDED.{column}" for column in columns[2:]])};'''
+    def query_call(self, values, columns, table):
+        query = f'''
+                    INSERT INTO {table} ({', '.join(columns)})
+                    VALUES ({', '.join(['%s'] * len(columns))})
+                    ON DUPLICATE KEY UPDATE
+                    {', '.join([f"{column} = VALUES({column})" for column in columns[2:]])};
+                '''
         try:
             self.cursor.execute(query, values)           
             self.conn.commit()
@@ -71,7 +72,7 @@ class TeamScraper(Scraper):
         html = self.fetch_page(url)
         if html:
             wiki_df = self.parse_page(html)
-            self.cursor.execute("SELECT team_name FROM teams WHERE season=?", (self.season,))
+            self.cursor.execute('SELECT team_name FROM teams WHERE season=%s', (self.season,))
             teams = self.cursor.fetchall()
             for index,row in wiki_df.iterrows():
                 try:
@@ -79,7 +80,7 @@ class TeamScraper(Scraper):
                     franchise = row['Franchise']
 
                     if franchise not in teams:
-                        self.cursor.execute("INSERT OR IGNORE INTO teams (abbreviation, team_name, season) VALUES (?, ?, ?)", (abbreviation, franchise, self.season))
+                        self.cursor.execute('INSERT IGNORE INTO teams (abbreviation, team_name, season) VALUES (%s, %s, %s)', (abbreviation, franchise, self.season))
                     self.conn.commit()
                 except:
                     print("TeamScraper: update_table Error - HTML found, Could Not Update Current NBA teams")
@@ -92,7 +93,7 @@ class InjuredPlayers(Scraper):
         super().__init__(conn, None, cursor, None, date, None)
 
     def update_table(self):
-        self.cursor.execute("DELETE FROM injury_report")
+        self.cursor.execute('DELETE FROM injury_report')
         url = 'https://www.espn.com/nba/injuries'
         tables = pd.read_html(url)
         if not tables:
@@ -107,7 +108,7 @@ class InjuredPlayers(Scraper):
                         name = row['NAME']
                         status = row['STATUS']
                         if status in ('Out', 'Doubtful'):
-                            self.cursor.execute("INSERT OR IGNORE INTO injury_report (date, player_name, description) VALUES (?, ?, ?)", (self.date, name, status))
+                            self.cursor.execute('INSERT IGNORE INTO injury_report (date, player_name, description) VALUES (%s, %s, %s)', (self.date, name, status))
                         self.conn.commit()
                     except:
                         print("InjuredPlayers: update_table Error - Tables of Injured Players Found - Could Not Insert Findings")
@@ -163,7 +164,7 @@ class RefStats(Scraper):
                     values = [official, season, G, FGA, FTA, PF, PTS, FGA_pgrel, FTA_pgrel, PF_pgrel, PTS_pgrel, home_win_loss, home_FGA, home_FTA, home_PF, home_PTS,
                         away_win_loss, away_FGA, away_FTA, away_PF, away_PTS, win_loss_hvrel, FGA_hvrel, FTA_hvrel, PF_hvrel, PTS_hvrel]
                     columns =["official", "season", "G", "FGA", "FTA", "PF", "PTS", "FGA_pgrel", "FTA_pgrel", "PF_pgrel", "PTS_pgrel", "home_win_loss", "home_FGA", "home_FTA", "home_PF", "home_PTS", "away_win_loss", "away_FGA", "away_FTA", "away_PF", "away_PTS", "win_loss_hvrel", "FGA_hvrel", "FTA_hvrel", "PF_hvrel", "PTS_hvrel"]
-                    self.query_call(values, columns, table="officiating", constraint="official")
+                    self.query_call(values, columns, table="officiating")
             except ValueError:
                 print("RefStats: update_table Error - Ref Stats Found, Could Not Be Inserted")
                 pass
@@ -218,9 +219,9 @@ class PlayerStats(Scraper):
                             
                             values = [player_name, season, team_tag, GP, MPG, PPG, FGM, FGA, FGp, ThreePM, ThreePA, ThreePp, FTM, FTA, FTp, ORB, DRB, RPG, APG, SPG, BPG, TOV, PF]
                             columns = ["player_name", "season", "team_tag", "GP", "MPG", "PPG", "FGM", "FGA", "FGp", "ThreePM", "ThreePA", "ThreePp", "FTM", "FTA", "FTp", "ORB", "DRB", "RPG", "APG", "SPG", "BPG", "TOV", "PF"]
-                            self.query_call(values, columns, table="player_stats", constraint="player_name")
+                            self.query_call(values, columns, table="player_stats")
                     except ValueError:
-                        print("PlayerStats: update_table Error - Player Stats Found - Could Not Be Inserted")
+                        print('PlayerStats: update_table Error - Player Stats Found - Could Not Be Inserted')
                         continue
 
             for page in range(1, 10): #Misc Stats
@@ -256,7 +257,7 @@ class PlayerStats(Scraper):
                             
                             values = [player_name, season, DblDbl, TrpDbl, FortyBomb, TwentyReb, TwentyAst, FiveStl, FiveBlk, High, HandsOnBuckets, AstToTovR, StlToTovR, FTFGAp, TeamW, TeamL, TeamWp, OWS, DWS, WS]
                             columns = ["player_name", "season", "DblDbl", "TrpDbl", "FortyBomb", "TwentyReb", "TwentyAst", "FiveStl", "FiveBlk", "High", "HandsOnBuckets", "AstToTovR", "StlToTovR", "FTFGAp", "TeamW", "TeamL", "TeamWp", "OWS", "DWS", "WS"]
-                            self.query_call(values, columns, table="player_stats", constraint="player_name")
+                            self.query_call(values, columns, table="player_stats")
                     except ValueError:
                         print("PlayerStats: update_table Error - Player Stats Found - Could Not Be Inserted")
                         continue
@@ -295,7 +296,7 @@ class PlayerStats(Scraper):
         
                             values = [player_name, season, TS, eFG, TotalSp, ORBp, DRBp, TRBp, ASTp, TOVp, STLp, BLKp, USG, PPR, PPS, ORtg, DRtg, eDiff, FIC, PER]
                             columns = ["player_name", "season", "TS", "eFG", "TotalSp", "ORBp", "DRBp", "TRBp", "ASTp", "TOVp", "STLp", "BLKp", "USG", "PPR", "PPS", "ORtg", "DRtg", "eDiff", "FIC", "PER"]
-                            self.query_call(values, columns, table="player_stats", constraint="player_name")
+                            self.query_call(values, columns, table="player_stats")
                     except ValueError:
                         print("PlayerStats: update_table Error - Player Stats Found - Could Not Be Inserted")
                         continue
@@ -576,7 +577,7 @@ class DBCompiler(Scraper):
                     referee_names = []
                     referee_names.append(values)
                     referee_names = list(referee_names[0])
-                    self.cursor.execute("SELECT G, FGA, FTA, PF, PTS, FGA_pgrel, FTA_pgrel, PF_pgrel, PTS_pgrel, home_win_loss, home_FGA, home_FTA, home_PF, home_PTS, away_win_loss, away_FGA, away_FTA, away_PF, away_PTS, win_loss_hvrel, FGA_hvrel, FTA_hvrel, PF_hvrel, PTS_hvrel FROM officiating WHERE official IN ({})".format(', '.join(['?'] * len(referee_names))), referee_names)
+                    self.cursor.execute('SELECT G, FGA, FTA, PF, PTS, FGA_pgrel, FTA_pgrel, PF_pgrel, PTS_pgrel, home_win_loss, home_FGA, home_FTA, home_PF, home_PTS, away_win_loss, away_FGA, away_FTA, away_PF, away_PTS, win_loss_hvrel, FGA_hvrel, FTA_hvrel, PF_hvrel, PTS_hvrel FROM officiating WHERE official IN ({})'.format(', '.join(['%s'] * len(referee_names))), referee_names)
                     official_stats = self.cursor.fetchall()
                     
                     if official_stats:
@@ -597,18 +598,18 @@ class DBCompiler(Scraper):
         
         if home_teams and away_teams:
             for home_team, away_team in zip(home_teams, away_teams):
-                self.cursor.execute("SELECT * FROM team_stats WHERE team_name LIKE ? AND season = ?", ('% ' + home_team + '%', self.season))
+                self.cursor.execute('SELECT * FROM team_stats WHERE team_name LIKE %s AND season = %s', ('% ' + home_team + '%', self.season))
                 home_team_stats = self.cursor.fetchall()
-                self.cursor.execute("SELECT * FROM team_stats WHERE team_name LIKE ? AND season = ?", ('% ' + away_team + '%', self.season))
+                self.cursor.execute('SELECT * FROM team_stats WHERE team_name LIKE %s AND season = %s', ('% ' + away_team + '%', self.season))
                 away_team_stats = self.cursor.fetchall()
 
                 home_team_stats = [item for sublist in home_team_stats for item in sublist]
                 away_team_stats = [item for sublist in away_team_stats for item in sublist]
-                self.cursor.execute("SELECT * FROM player_stats WHERE team_tag IN (SELECT abbreviation FROM teams WHERE team_name LIKE ?) AND player_name IN (SELECT player_name FROM injury_report)", ('%' + home_team + '%',))
+                self.cursor.execute('SELECT * FROM player_stats WHERE team_tag IN (SELECT abbreviation FROM teams WHERE team_name LIKE %s) AND player_name IN (SELECT player_name FROM injury_report)', ('%' + home_team + '%',))
                 home_team_injuries = self.cursor.fetchall()
-                self.cursor.execute("SELECT * FROM player_stats WHERE team_tag IN (SELECT abbreviation FROM teams WHERE team_name LIKE ?) AND player_name IN (SELECT player_name FROM injury_report)", ('%' + away_team + '%',))
+                self.cursor.execute('SELECT * FROM player_stats WHERE team_tag IN (SELECT abbreviation FROM teams WHERE team_name LIKE %s) AND player_name IN (SELECT player_name FROM injury_report)', ('%' + away_team + '%',))
                 away_team_injuries = self.cursor.fetchall()
-                self.cursor.execute("SELECT team_name from teams WHERE team_name LIKE ?", ('% ' + home_team + '%',))
+                self.cursor.execute('SELECT team_name from teams WHERE team_name LIKE %s', ('% ' + home_team + '%',))
                 home_team_full = self.cursor.fetchone()[0]
 
             
@@ -630,7 +631,7 @@ class DBCompiler(Scraper):
                     columns = ["date", "game_identifier", "season", "team_1_is_home", "team_1_team_name", "team_1_G", "team_1_FG", "team_1_FGA", "team_1_FGp", "team_1_ThreeP", "team_1_ThreePA", "team_1_ThreePp", "team_1_TwoP", "team_1_TwoPA", "team_1_TwoPp", "team_1_FT", "team_1_FTA", "team_1_FTp", "team_1_ORB", "team_1_DRB", "team_1_TRB", "team_1_AST", "team_1_STL", "team_1_BLK", "team_1_TOV", "team_1_PF", "team_1_PTS", "team_1_age", "team_1_W", "team_1_L", "team_1_MOV", "team_1_SOS", "team_1_SRS", "team_1_ORtg", "team_1_DRtg", "team_1_NRtg", "team_1_pace", "team_1_FTr", "team_1_ThreePAr", "team_1_TSp", "team_1_OeFG", "team_1_OTOVp", "team_1_ORBp", "team_1_OFTFGAp", "team_1_DeFG", "team_1_DTOVp", "team_1_DRBp", "team_1_DFTFGAp", "team_1_avgD", "team_1_pTwoP", "team_1_pZeroToThree", "team_1_pThreeToTen", "team_1_pTenToSixteen", "team_1_pSixteenToThreeP", "team_1_pDunksA", "team_1_pDunksM", "team_1_TwoPointFGAst", "team_1_ThreePointFGAst", "team_1_FGpTwoP", "team_1_FGpZeroToThreeP", "team_1_FGpThreeToTenP", "team_1_FGpTenToSixteenP", "team_1_FGpSixteenToThreeP", "team_1_FGpThreeP", "team_1_oppG", "team_1_oppFG", "team_1_oppFGA", "team_1_oppFGp", "team_1_oppThreeP", "team_1_oppThreePA", "team_1_oppThreePp", "team_1_oppTwoP", "team_1_oppTwoPA", "team_1_oppTwoPp", "team_1_oppFT", "team_1_oppFTA", "team_1_oppFTp", "team_1_oppORB", "team_1_oppDRB", "team_1_oppTRB", "team_1_oppAST", "team_1_oppSTL", "team_1_oppBLK", "team_1_oppTOV", "team_1_oppPF", "team_1_oppPTS", "team_1_injured_GP", "team_1_injured_MPG", "team_1_injured_PPG", "team_1_injured_FGM", "team_1_injured_FGA", "team_1_injured_FGp", "team_1_injured_ThreePM", "team_1_injured_ThreePA", "team_1_injured_ThreePp", "team_1_injured_FTM", "team_1_injured_FTA", "team_1_injured_FTp", "team_1_injured_ORB", "team_1_injured_DRB", "team_1_injured_RPG", "team_1_injured_APG", "team_1_injured_SPG", "team_1_injured_BPG", "team_1_injured_TOV", "team_1_injured_PF", "team_1_injured_DblDbl", "team_1_injured_TrpDbl", "team_1_injured_FortyBomb", "team_1_injured_TwentyReb", "team_1_injured_TwentyAst", "team_1_injured_FiveStl", "team_1_injured_FiveBlk", "team_1_injured_High", "team_1_injured_HandsOnBuckets", "team_1_injured_AstToTovR", "team_1_injured_StlToTovR", "team_1_injured_FTFGAp", "team_1_injured_TeamW", "team_1_injured_TeamL", "team_1_injured_TeamWp", "team_1_injured_OWS", "team_1_injured_DWS", "team_1_injured_WS", "team_1_injured_TS", "team_1_injured_eFG", "team_1_injured_TotalSp", "team_1_injured_ORBp", "team_1_injured_DRBp", "team_1_injured_TRBp", "team_1_injured_ASTp", "team_1_injured_TOVp", "team_1_injured_STLp", "team_1_injured_BLKp", "team_1_injured_USG", "team_1_injured_PPR", "team_1_injured_PPS", "team_1_injured_ORtg", "team_1_injured_DRtg", "team_1_injured_eDiff", "team_1_injured_FIC", "team_1_injured_PER", "team_2_is_home", "team_2_team_name", "team_2_G", "team_2_FG", "team_2_FGA", "team_2_FGp", "team_2_ThreeP", "team_2_ThreePA", "team_2_ThreePp", "team_2_TwoP", "team_2_TwoPA", "team_2_TwoPp", "team_2_FT", "team_2_FTA", "team_2_FTp", "team_2_ORB", "team_2_DRB", "team_2_TRB", "team_2_AST", "team_2_STL", "team_2_BLK", "team_2_TOV", "team_2_PF", "team_2_PTS", "team_2_age", "team_2_W", "team_2_L", "team_2_MOV", "team_2_SOS", "team_2_SRS", "team_2_ORtg", "team_2_DRtg", "team_2_NRtg", "team_2_pace", "team_2_FTr", "team_2_ThreePAr", "team_2_TSp", "team_2_OeFG", "team_2_OTOVp", "team_2_ORBp", "team_2_OFTFGAp", "team_2_DeFG", "team_2_DTOVp", "team_2_DRBp", "team_2_DFTFGAp", "team_2_avgD", "team_2_pTwoP", "team_2_pZeroToThree", "team_2_pThreeToTen", "team_2_pTenToSixteen", "team_2_pSixteenToThreeP", "team_2_pDunksA", "team_2_pDunksM", "team_2_TwoPointFGAst", "team_2_ThreePointFGAst", "team_2_FGpTwoP", "team_2_FGpZeroToThreeP", "team_2_FGpThreeToTenP", "team_2_FGpTenToSixteenP", "team_2_FGpSixteenToThreeP", "team_2_FGpThreeP", "team_2_oppG", "team_2_oppFG", "team_2_oppFGA", "team_2_oppFGp", "team_2_oppThreeP", "team_2_oppThreePA", "team_2_oppThreePp", "team_2_oppTwoP", "team_2_oppTwoPA", "team_2_oppTwoPp", "team_2_oppFT", "team_2_oppFTA", "team_2_oppFTp", "team_2_oppORB", "team_2_oppDRB", "team_2_oppTRB", "team_2_oppAST", "team_2_oppSTL", "team_2_oppBLK", "team_2_oppTOV", "team_2_oppPF", "team_2_oppPTS", "team_2_injured_GP", "team_2_injured_MPG", "team_2_injured_PPG", "team_2_injured_FGM", "team_2_injured_FGA", "team_2_injured_FGp", "team_2_injured_ThreePM", "team_2_injured_ThreePA", "team_2_injured_ThreePp", "team_2_injured_FTM", "team_2_injured_FTA", "team_2_injured_FTp", "team_2_injured_ORB", "team_2_injured_DRB", "team_2_injured_RPG", "team_2_injured_APG", "team_2_injured_SPG", "team_2_injured_BPG", "team_2_injured_TOV", "team_2_injured_PF", "team_2_injured_DblDbl", "team_2_injured_TrpDbl", "team_2_injured_FortyBomb", "team_2_injured_TwentyReb", "team_2_injured_TwentyAst", "team_2_injured_FiveStl", "team_2_injured_FiveBlk", "team_2_injured_High", "team_2_injured_HandsOnBuckets", "team_2_injured_AstToTovR", "team_2_injured_StlToTovR", "team_2_injured_FTFGAp", "team_2_injured_TeamW", "team_2_injured_TeamL", "team_2_injured_TeamWp", "team_2_injured_OWS", "team_2_injured_DWS", "team_2_injured_WS", "team_2_injured_TS", "team_2_injured_eFG", "team_2_injured_TotalSp", "team_2_injured_ORBp", "team_2_injured_DRBp", "team_2_injured_TRBp", "team_2_injured_ASTp", "team_2_injured_TOVp", "team_2_injured_STLp", "team_2_injured_BLKp", "team_2_injured_USG", "team_2_injured_PPR", "team_2_injured_PPS", "team_2_injured_ORtg", "team_2_injured_DRtg", "team_2_injured_eDiff", "team_2_injured_FIC", "team_2_injured_PER", "official_stat_G", "official_stat_FGA", "official_stat_FTA", "official_stat_PF", "official_stat_PTS", "official_stat_FGA_pgrel", "official_stat_FTA_pgrel", "official_stat_PF_pgrel", "official_stat_PTS_pgrel", "official_stat_home_win_loss", "official_stat_home_FGA", "official_stat_home_FTA", "official_stat_home_PF", "official_stat_home_PTS", "official_stat_away_win_loss", "official_stat_away_FGA", "official_stat_away_FTA", "official_stat_away_PF", "official_stat_away_PTS", "official_stat_win_loss_hvrel", "official_stat_FGA_hvrel", "official_stat_FTA_hvrel", "official_stat_PF_hvrel", "official_stat_PTS_hvrel"]
                     
                     query = f'''INSERT INTO box_scores ({', '.join(columns)})
-                                VALUES ({', '.join(['?'] * len(columns))})
+                                VALUES ({', '.join(['%s'] * len(columns))})
                                 ON CONFLICT (game_identifier, date) DO UPDATE
                                 SET
                                 {', '.join([f"{column} = EXCLUDED.{column}" for column in columns])};'''
@@ -644,7 +645,7 @@ class DBCompiler(Scraper):
         total = int(value1) + int(value2)
         values = [self.yesterday_date, self.season, team1, is_home, value1, won, team2, is_away, value2, lost, total]
         
-        self.cursor.execute(f"INSERT INTO predictors (date, season, team_1_team_name, team_1_is_home, team_1_score, team_1_was_winner, team_2_team_name, team_2_is_home, team_2_score, team_2_was_winner, total) VALUES ({', '.join(['?'] * len(values))})", values)
+        self.cursor.execute(f'INSERT INTO predictors (date, season, team_1_team_name, team_1_is_home, team_1_score, team_1_was_winner, team_2_team_name, team_2_is_home, team_2_score, team_2_was_winner, total) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', values)
         self.conn.commit()
 
     def targets(self):
@@ -680,9 +681,9 @@ class DBCompiler(Scraper):
                 if key2 == "NETS":
                     key2 == " NETS"
 
-                self.cursor.execute("SELECT team_1_team_name FROM box_scores WHERE date = ? AND team_1_team_name LIKE ?", (self.yesterday_date, '%' + key1 + '%',))
+                self.cursor.execute('SELECT team_1_team_name FROM box_scores WHERE date = %s AND team_1_team_name LIKE %s', (self.yesterday_date, '%' + key1 + '%',))
                 home_team_is_team1_exists = self.cursor.fetchone()
-                self.cursor.execute("SELECT team_1_team_name FROM box_scores WHERE date = ? AND team_1_team_name LIKE ?", (self.yesterday_date, '%' + key2 + '%',))
+                self.cursor.execute('SELECT team_1_team_name FROM box_scores WHERE date = %s AND team_1_team_name LIKE %s', (self.yesterday_date, '%' + key2 + '%',))
                 away_team_is_team1_exists = self.cursor.fetchone()
                 
                 try:
@@ -733,6 +734,10 @@ def main():
     request_counter = 0
 
     TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    # TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
 
     # thread_team = Thread(target=TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table())
     # thread_injuries = Thread(target=InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table())
