@@ -1,9 +1,9 @@
 import mysql.connector
-from datetime import datetime, timedelta
 from threading import Thread
+import time
 import pandas as pd
-import os
 import requests
+import os
 import time, datetime
 from bs4 import BeautifulSoup
 import random
@@ -702,7 +702,7 @@ class DBCompiler(Scraper):
             print("DBCompiler: targets - Predictor Table Failed")
   
 def season_year():
-    season, month = int(datetime.now().year), int(datetime.now().month)
+    season, month = (datetime.datetime.now().year), int(datetime.datetime.now().month)
     if month > 6:
         season = season + 1
     return int(season)
