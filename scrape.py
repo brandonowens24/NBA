@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 import os
 import time, datetime
+from datetime import timedelta
 from bs4 import BeautifulSoup
 import random
 import numpy as np
@@ -709,30 +710,14 @@ def season_year():
 
 def connect_to_database():
     
-    host = 'root'
-    user = 'brandon'
-    password = 'Hershey1BO24!'
-
-    with open("mysql.sql", "r") as structure:
+    with open("MySQL_NBA.session.sql", "r") as structure:
         structure = structure.read()
 
     try:
-        conn = mysql.connector.connect (
-            host=host,
-            user=user,
-            password=password
-        ) 
-
-        if conn.is_connected():
-            cursor = conn.cursor()
-            statements = structure.split(';')
-
-            for statement in statements:
-                if statement.strip():
-                    cursor.execute(statement)
-            return conn
+        db = mysql.connector.connect(user="root",password="Hershey1BO24!",database="nba_mysql")
+        return db
     except:
-        print("Database Connection Error")
+        print("DB Not Connected")
         return None
 
 def main():
@@ -741,8 +726,8 @@ def main():
     conn = connect_to_database()
     cursor = conn.cursor()
 
-    date = datetime.now().strftime("%Y%m%d") + '0'
-    yesterday_date = datetime.now() - timedelta(days=1)
+    date = datetime.datetime.now().strftime("%Y%m%d") + '0'
+    yesterday_date = datetime.datetime.now() - timedelta(days=1)
     yesterday_date = yesterday_date.strftime("%Y%m%d") + '0'
     global request_counter
     request_counter = 0
