@@ -39,6 +39,7 @@ class Scraper:
         return response
         
     def query_call(self, values, columns, table):
+        values = [0 if item == '-' else item for item in values]
         query = f'''
                     INSERT INTO {table} ({', '.join(columns)})
                     VALUES ({', '.join(['%s'] * len(columns))})
