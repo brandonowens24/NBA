@@ -351,7 +351,7 @@ class TeamStats(Scraper):
 
                     values = [team_name, season, age, W, L, MOV, SOS, SRS, ORtg, DRtg, NRtg, pace, FTr, ThreePAr, TSp, OeFG, OTOVp, ORBp, OFTFGAp, DeFG, DTOVp, DRBp, DFTFGAp]
                     columns = ["team_name", "season", "age", "W", "L", "MOV", "SOS", "SRS", "ORtg", "DRtg", "NRtg", "pace", "FTr", "ThreePAr", "TSp", "OeFG", "OTOVp", "ORBp", "OFTFGAp", "DeFG", "DTOVp", "DRBp", "DFTFGAp"]
-                    self.query_call(values, columns, table="team_stats", constraint="team_name")
+                    self.query_call(values, columns, table="team_stats")
 
                 # For Team Averages
                 for index, row in team_averages_df.iterrows():
@@ -383,7 +383,7 @@ class TeamStats(Scraper):
 
                     values = [team_name, season, G, FG, FGA, FGp, ThreeP, ThreePA, ThreePp, TwoP, TwoPA, TwoPp, FT, FTA, FTp, ORB, DRB, TRB, AST, STL, BLK, TOV, PF, PTS]
                     columns = ["team_name", "season", "G", "FG", "FGA", "FGp", "ThreeP", "ThreePA", "ThreePp", "TwoP", "TwoPA", "TwoPp", "FT", "FTA", "FTp", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS"]
-                    self.query_call(values, columns, table="team_stats", constraint="team_name")
+                    self.query_call(values, columns, table="team_stats")
 
                 # For Team Opponents Averages
                 for index, row in team_opp_averages_df.iterrows():
@@ -415,7 +415,7 @@ class TeamStats(Scraper):
 
                     values = [team_name, season, oppG, oppFG, oppFGA, oppFGp, oppThreeP, oppThreePA, oppThreePp, oppTwoP, oppTwoPA, oppTwoPp, oppFT, oppFTA, oppFTp, oppORB, oppDRB, oppTRB, oppAST, oppSTL, oppBLK, oppTOV, oppPF, oppPTS]
                     columns = ["team_name", "season", "oppG", "oppFG", "oppFGA", "oppFGp", "oppThreeP", "oppThreePA", "oppThreePp", "oppTwoP", "oppTwoPA", "oppTwoPp", "oppFT", "oppFTA", "oppFTp", "oppORB", "oppDRB", "oppTRB", "oppAST", "oppSTL", "oppBLK", "oppTOV", "oppPF", "oppPTS"]
-                    self.query_call(values, columns, table="team_stats", constraint="team_name")
+                    self.query_call(values, columns, table="team_stats")
 
                 # For Team Shooting Splits
                 for index, row in team_shooting_stats_df.iterrows():
@@ -442,7 +442,7 @@ class TeamStats(Scraper):
                     values = [team_name, season, avgD, pTwoP, pZeroToThree, pThreeToTen, pTenToSixteen, pSixteenToThreeP, pDunksA, pDunksM, TwoPointFGAst, ThreePointFGAst, FGpTwoP,
                               FGpZeroToThreeP, FGpThreeToTenP, FGpTenToSixteenP, FGpSixteenToThreeP, FGpThreeP]
                     columns = ["team_name", "season", "avgD", "pTwoP", "pZeroToThree", "pThreeToTen", "pTenToSixteen", "pSixteenToThreeP", "pDunksA", "pDunksM", "TwoPointFGAst", "ThreePointFGAst", "FGpTwoP", "FGpZeroToThreeP", "FGpThreeToTenP", "FGpTenToSixteenP", "FGpSixteenToThreeP", "FGpThreeP"]
-                    self.query_call(values, columns, table="team_stats", constraint="team_name")
+                    self.query_call(values, columns, table="team_stats")
             except ValueError:
                 print("TeamStats: update_table Error - Team Stats Found - Could Not Be Inserted")
                 continue
@@ -630,17 +630,17 @@ class DBCompiler(Scraper):
                         #Away team put into team 1
                         values = [self.date, game_identifier, self.season, 0, away_team] + away_team_stats[2:] + away_injured_stats + [1, home_team] + home_team_stats[2:] + home_injured_stats + officials_stats
                     columns = ["date", "game_identifier", "season", "team_1_is_home", "team_1_team_name", "team_1_G", "team_1_FG", "team_1_FGA", "team_1_FGp", "team_1_ThreeP", "team_1_ThreePA", "team_1_ThreePp", "team_1_TwoP", "team_1_TwoPA", "team_1_TwoPp", "team_1_FT", "team_1_FTA", "team_1_FTp", "team_1_ORB", "team_1_DRB", "team_1_TRB", "team_1_AST", "team_1_STL", "team_1_BLK", "team_1_TOV", "team_1_PF", "team_1_PTS", "team_1_age", "team_1_W", "team_1_L", "team_1_MOV", "team_1_SOS", "team_1_SRS", "team_1_ORtg", "team_1_DRtg", "team_1_NRtg", "team_1_pace", "team_1_FTr", "team_1_ThreePAr", "team_1_TSp", "team_1_OeFG", "team_1_OTOVp", "team_1_ORBp", "team_1_OFTFGAp", "team_1_DeFG", "team_1_DTOVp", "team_1_DRBp", "team_1_DFTFGAp", "team_1_avgD", "team_1_pTwoP", "team_1_pZeroToThree", "team_1_pThreeToTen", "team_1_pTenToSixteen", "team_1_pSixteenToThreeP", "team_1_pDunksA", "team_1_pDunksM", "team_1_TwoPointFGAst", "team_1_ThreePointFGAst", "team_1_FGpTwoP", "team_1_FGpZeroToThreeP", "team_1_FGpThreeToTenP", "team_1_FGpTenToSixteenP", "team_1_FGpSixteenToThreeP", "team_1_FGpThreeP", "team_1_oppG", "team_1_oppFG", "team_1_oppFGA", "team_1_oppFGp", "team_1_oppThreeP", "team_1_oppThreePA", "team_1_oppThreePp", "team_1_oppTwoP", "team_1_oppTwoPA", "team_1_oppTwoPp", "team_1_oppFT", "team_1_oppFTA", "team_1_oppFTp", "team_1_oppORB", "team_1_oppDRB", "team_1_oppTRB", "team_1_oppAST", "team_1_oppSTL", "team_1_oppBLK", "team_1_oppTOV", "team_1_oppPF", "team_1_oppPTS", "team_1_injured_GP", "team_1_injured_MPG", "team_1_injured_PPG", "team_1_injured_FGM", "team_1_injured_FGA", "team_1_injured_FGp", "team_1_injured_ThreePM", "team_1_injured_ThreePA", "team_1_injured_ThreePp", "team_1_injured_FTM", "team_1_injured_FTA", "team_1_injured_FTp", "team_1_injured_ORB", "team_1_injured_DRB", "team_1_injured_RPG", "team_1_injured_APG", "team_1_injured_SPG", "team_1_injured_BPG", "team_1_injured_TOV", "team_1_injured_PF", "team_1_injured_DblDbl", "team_1_injured_TrpDbl", "team_1_injured_FortyBomb", "team_1_injured_TwentyReb", "team_1_injured_TwentyAst", "team_1_injured_FiveStl", "team_1_injured_FiveBlk", "team_1_injured_High", "team_1_injured_HandsOnBuckets", "team_1_injured_AstToTovR", "team_1_injured_StlToTovR", "team_1_injured_FTFGAp", "team_1_injured_TeamW", "team_1_injured_TeamL", "team_1_injured_TeamWp", "team_1_injured_OWS", "team_1_injured_DWS", "team_1_injured_WS", "team_1_injured_TS", "team_1_injured_eFG", "team_1_injured_TotalSp", "team_1_injured_ORBp", "team_1_injured_DRBp", "team_1_injured_TRBp", "team_1_injured_ASTp", "team_1_injured_TOVp", "team_1_injured_STLp", "team_1_injured_BLKp", "team_1_injured_USG", "team_1_injured_PPR", "team_1_injured_PPS", "team_1_injured_ORtg", "team_1_injured_DRtg", "team_1_injured_eDiff", "team_1_injured_FIC", "team_1_injured_PER", "team_2_is_home", "team_2_team_name", "team_2_G", "team_2_FG", "team_2_FGA", "team_2_FGp", "team_2_ThreeP", "team_2_ThreePA", "team_2_ThreePp", "team_2_TwoP", "team_2_TwoPA", "team_2_TwoPp", "team_2_FT", "team_2_FTA", "team_2_FTp", "team_2_ORB", "team_2_DRB", "team_2_TRB", "team_2_AST", "team_2_STL", "team_2_BLK", "team_2_TOV", "team_2_PF", "team_2_PTS", "team_2_age", "team_2_W", "team_2_L", "team_2_MOV", "team_2_SOS", "team_2_SRS", "team_2_ORtg", "team_2_DRtg", "team_2_NRtg", "team_2_pace", "team_2_FTr", "team_2_ThreePAr", "team_2_TSp", "team_2_OeFG", "team_2_OTOVp", "team_2_ORBp", "team_2_OFTFGAp", "team_2_DeFG", "team_2_DTOVp", "team_2_DRBp", "team_2_DFTFGAp", "team_2_avgD", "team_2_pTwoP", "team_2_pZeroToThree", "team_2_pThreeToTen", "team_2_pTenToSixteen", "team_2_pSixteenToThreeP", "team_2_pDunksA", "team_2_pDunksM", "team_2_TwoPointFGAst", "team_2_ThreePointFGAst", "team_2_FGpTwoP", "team_2_FGpZeroToThreeP", "team_2_FGpThreeToTenP", "team_2_FGpTenToSixteenP", "team_2_FGpSixteenToThreeP", "team_2_FGpThreeP", "team_2_oppG", "team_2_oppFG", "team_2_oppFGA", "team_2_oppFGp", "team_2_oppThreeP", "team_2_oppThreePA", "team_2_oppThreePp", "team_2_oppTwoP", "team_2_oppTwoPA", "team_2_oppTwoPp", "team_2_oppFT", "team_2_oppFTA", "team_2_oppFTp", "team_2_oppORB", "team_2_oppDRB", "team_2_oppTRB", "team_2_oppAST", "team_2_oppSTL", "team_2_oppBLK", "team_2_oppTOV", "team_2_oppPF", "team_2_oppPTS", "team_2_injured_GP", "team_2_injured_MPG", "team_2_injured_PPG", "team_2_injured_FGM", "team_2_injured_FGA", "team_2_injured_FGp", "team_2_injured_ThreePM", "team_2_injured_ThreePA", "team_2_injured_ThreePp", "team_2_injured_FTM", "team_2_injured_FTA", "team_2_injured_FTp", "team_2_injured_ORB", "team_2_injured_DRB", "team_2_injured_RPG", "team_2_injured_APG", "team_2_injured_SPG", "team_2_injured_BPG", "team_2_injured_TOV", "team_2_injured_PF", "team_2_injured_DblDbl", "team_2_injured_TrpDbl", "team_2_injured_FortyBomb", "team_2_injured_TwentyReb", "team_2_injured_TwentyAst", "team_2_injured_FiveStl", "team_2_injured_FiveBlk", "team_2_injured_High", "team_2_injured_HandsOnBuckets", "team_2_injured_AstToTovR", "team_2_injured_StlToTovR", "team_2_injured_FTFGAp", "team_2_injured_TeamW", "team_2_injured_TeamL", "team_2_injured_TeamWp", "team_2_injured_OWS", "team_2_injured_DWS", "team_2_injured_WS", "team_2_injured_TS", "team_2_injured_eFG", "team_2_injured_TotalSp", "team_2_injured_ORBp", "team_2_injured_DRBp", "team_2_injured_TRBp", "team_2_injured_ASTp", "team_2_injured_TOVp", "team_2_injured_STLp", "team_2_injured_BLKp", "team_2_injured_USG", "team_2_injured_PPR", "team_2_injured_PPS", "team_2_injured_ORtg", "team_2_injured_DRtg", "team_2_injured_eDiff", "team_2_injured_FIC", "team_2_injured_PER", "official_stat_G", "official_stat_FGA", "official_stat_FTA", "official_stat_PF", "official_stat_PTS", "official_stat_FGA_pgrel", "official_stat_FTA_pgrel", "official_stat_PF_pgrel", "official_stat_PTS_pgrel", "official_stat_home_win_loss", "official_stat_home_FGA", "official_stat_home_FTA", "official_stat_home_PF", "official_stat_home_PTS", "official_stat_away_win_loss", "official_stat_away_FGA", "official_stat_away_FTA", "official_stat_away_PF", "official_stat_away_PTS", "official_stat_win_loss_hvrel", "official_stat_FGA_hvrel", "official_stat_FTA_hvrel", "official_stat_PF_hvrel", "official_stat_PTS_hvrel"]
-                    
-                    query = f'''INSERT INTO box_scores ({', '.join(columns)})
+  
+                    query = f''' INSERT INTO box_scores ({', '.join(columns)})
                                 VALUES ({', '.join(['%s'] * len(columns))})
-                                ON CONFLICT (game_identifier, date) DO UPDATE
-                                SET
-                                {', '.join([f"{column} = EXCLUDED.{column}" for column in columns])};'''
+                                ON DUPLICATE KEY UPDATE
+                                {', '.join([f"{column} = VALUES({column})" for column in columns])};'''
                     self.cursor.execute(query, values)
                     self.conn.commit()
 
                 except:
                     print("DBCompiler: update_table - Couldn't Insert Box Score Stats")
+                    print({game_identifier})
                 
     def update_predictors_table(self, team1, team2, value1, value2, is_home, is_away, won, lost):
         total = int(value1) + int(value2)
@@ -734,35 +734,40 @@ def main():
     global request_counter
     request_counter = 0
 
-    TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+
+
+
+    # TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    # InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    # RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    # PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     # TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    #DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    #DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).targets()
 
-    # thread_team = Thread(target=TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    # thread_injuries = Thread(target=InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    # thread_officiating = Thread(target=RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    # thread_players = Thread(target=PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    # thread_team_stats = Thread(target=TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    # thread_box_score = Thread(target=DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    # thread_targets = Thread(target=DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).targets())
+    thread_team = Thread(target=TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    thread_injuries = Thread(target=InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    thread_officiating = Thread(target=RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    thread_players = Thread(target=PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    thread_team_stats = Thread(target=TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    thread_box_score = Thread(target=DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    thread_targets = Thread(target=DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).targets())
 
-    # thread_team.start()
-    # thread_injuries.start()
-    # thread_officiating.start()
-    # thread_players.start()
-    # thread_team_stats.start()
-    # thread_box_score.start()
-    # thread_targets.start()
+    thread_team.start()
+    thread_injuries.start()
+    thread_officiating.start()
+    thread_players.start()
+    thread_team_stats.start()
+    thread_box_score.start()
+    thread_targets.start()
 
-    # thread_team.join()
-    # thread_injuries.join()
-    # thread_officiating.join()
-    # thread_players.join()
-    # thread_team_stats.join()
-    # thread_box_score.join()
-    # thread_targets.join()
+    thread_team.join()
+    thread_injuries.join()
+    thread_officiating.join()
+    thread_players.join()
+    thread_team_stats.join()
+    thread_box_score.join()
+    thread_targets.join()
 
     conn.close()
     print("Complete")
