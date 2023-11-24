@@ -645,8 +645,8 @@ class DBCompiler(Scraper):
     def update_predictors_table(self, team1, team2, value1, value2, is_home, is_away, won, lost):
         total = int(value1) + int(value2)
         values = [self.yesterday_date, self.season, team1, is_home, value1, won, team2, is_away, value2, lost, total]
-        
-        self.cursor.execute(f'INSERT INTO predictors (date, season, team_1_team_name, team_1_is_home, team_1_score, team_1_was_winner, team_2_team_name, team_2_is_home, team_2_score, team_2_was_winner, total) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', values)
+        columns = ['date', 'season', 'team_1_team_name', 'team_1_is_home', 'team_1_score', 'team_1_was_winner', 'team_2_team_name', 'team_2_is_home', 'team_2_score', 'team_2_was_winner', 'total']
+        self.query_call(values, columns, table='predictors')
         self.conn.commit()
 
     def targets(self):
