@@ -711,10 +711,6 @@ def season_year():
     return int(season)
 
 def connect_to_database():
-    
-    with open("MySQL_NBA.session.sql", "r") as structure:
-        structure = structure.read()
-
     try:
         db = mysql.connector.connect(user="root",password="Hershey1BO24!",database="nba_mysql")
         return db
