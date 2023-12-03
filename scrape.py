@@ -600,9 +600,9 @@ class DBCompiler(Scraper):
         if home_teams and away_teams:
             for home_team, away_team in zip(home_teams, away_teams):
                 if home_team == "NETS":
-                    home_team == " NETS"
+                    home_team = " " + home_team
                 if away_team == "NETS":
-                    away_team == " NETS"
+                    away_team = " " + away_team
                 self.cursor.execute('SELECT * FROM team_stats WHERE team_name LIKE %s AND season = %s', ('% ' + home_team + '%', self.season))
                 home_team_stats = self.cursor.fetchall()
                 self.cursor.execute('SELECT * FROM team_stats WHERE team_name LIKE %s AND season = %s', ('% ' + away_team + '%', self.season))
@@ -680,15 +680,11 @@ class DBCompiler(Scraper):
             for (key1, value1), (key2, value2) in zip(home_scores.items(), away_scores.items()):
                 value1 = int(value1)
                 value2 = int(value2)
-                
-                if key1 == "Nets":
-                    key1 == " NETS"
-                if key2 == "Nets":
-                    key2 == " NETS"
 
-                self.cursor.execute('SELECT team_1_team_name FROM box_scores WHERE date = %s AND team_1_team_name LIKE %s', (self.yesterday_date, '%' + key1 + '%',))
+
+                self.cursor.execute('SELECT team_1_team_name FROM box_scores WHERE date = %s AND team_1_team_name = %s', (self.yesterday_date, key1,))
                 home_team_is_team1_exists = self.cursor.fetchone()
-                self.cursor.execute('SELECT team_1_team_name FROM box_scores WHERE date = %s AND team_1_team_name LIKE %s', (self.yesterday_date, '%' + key2 + '%',))
+                self.cursor.execute('SELECT team_1_team_name FROM box_scores WHERE date = %s AND team_1_team_name = %s', (self.yesterday_date, key2,))
                 away_team_is_team1_exists = self.cursor.fetchone()
                 
                 try:
