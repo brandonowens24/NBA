@@ -730,11 +730,11 @@ def main():
     global request_counter
     request_counter = 0
 
-    # TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    # InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    # RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    # PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    # TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).targets()
 
