@@ -599,6 +599,10 @@ class DBCompiler(Scraper):
         
         if home_teams and away_teams:
             for home_team, away_team in zip(home_teams, away_teams):
+                if home_team == "NETS":
+                    home_team == " NETS"
+                if away_team == "NETS":
+                    away_team == " NETS"
                 self.cursor.execute('SELECT * FROM team_stats WHERE team_name LIKE %s AND season = %s', ('% ' + home_team + '%', self.season))
                 home_team_stats = self.cursor.fetchall()
                 self.cursor.execute('SELECT * FROM team_stats WHERE team_name LIKE %s AND season = %s', ('% ' + away_team + '%', self.season))
@@ -677,9 +681,9 @@ class DBCompiler(Scraper):
                 value1 = int(value1)
                 value2 = int(value2)
                 
-                if key1 == "NETS":
+                if key1 == "Nets":
                     key1 == " NETS"
-                if key2 == "NETS":
+                if key2 == "Nets":
                     key2 == " NETS"
 
                 self.cursor.execute('SELECT team_1_team_name FROM box_scores WHERE date = %s AND team_1_team_name LIKE %s', (self.yesterday_date, '%' + key1 + '%',))
@@ -730,40 +734,37 @@ def main():
     global request_counter
     request_counter = 0
 
-
-
-
     # TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     # InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     # RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     # PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     # TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    #DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    #DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).targets()
+    DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).targets()
 
-    thread_team = Thread(target=TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    thread_injuries = Thread(target=InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    thread_officiating = Thread(target=RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    thread_players = Thread(target=PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    thread_team_stats = Thread(target=TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    thread_box_score = Thread(target=DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).update_table())
-    thread_targets = Thread(target=DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).targets())
+    # thread_team = Thread(target=TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    # thread_injuries = Thread(target=InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    # thread_officiating = Thread(target=RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    # thread_players = Thread(target=PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    # thread_team_stats = Thread(target=TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    # thread_box_score = Thread(target=DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).update_table())
+    # thread_targets = Thread(target=DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).targets())
 
-    thread_team.start()
-    thread_injuries.start()
-    thread_officiating.start()
-    thread_players.start()
-    thread_team_stats.start()
-    thread_box_score.start()
-    thread_targets.start()
+    # thread_team.start()
+    # thread_injuries.start()
+    # thread_officiating.start()
+    # thread_players.start()
+    # thread_team_stats.start()
+    # thread_box_score.start()
+    # thread_targets.start()
 
-    thread_team.join()
-    thread_injuries.join()
-    thread_officiating.join()
-    thread_players.join()
-    thread_team_stats.join()
-    thread_box_score.join()
-    thread_targets.join()
+    # thread_team.join()
+    # thread_injuries.join()
+    # thread_officiating.join()
+    # thread_players.join()
+    # thread_team_stats.join()
+    # thread_box_score.join()
+    # thread_targets.join()
 
     conn.close()
     print("Complete")
