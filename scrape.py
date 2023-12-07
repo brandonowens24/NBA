@@ -197,6 +197,8 @@ class PlayerStats(Scraper):
                         for index, row in df.iterrows():
                             player_name = row['Player']
                             team_tag = row['Team']
+                            if team_tag == 'BRK':
+                                team_tag = 'BKN'
                             GP = row['GP']
                             MPG = row['MPG']
                             PPG = row['PPG']
@@ -725,11 +727,11 @@ def main():
     global request_counter
     request_counter = 0
 
-    # TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    # InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    # RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    # PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    # TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).targets()
 
