@@ -599,10 +599,6 @@ class DBCompiler(Scraper):
         
         if home_teams and away_teams:
             for home_team, away_team in zip(home_teams, away_teams):
-                if home_team == "NETS":
-                    home_team = " " + home_team
-                if away_team == "NETS":
-                    away_team = " " + away_team
                 self.cursor.execute('SELECT * FROM team_stats WHERE team_name LIKE %s AND season = %s', ('% ' + home_team + '%', self.season))
                 home_team_stats = self.cursor.fetchall()
                 self.cursor.execute('SELECT * FROM team_stats WHERE team_name LIKE %s AND season = %s', ('% ' + away_team + '%', self.season))
@@ -610,14 +606,13 @@ class DBCompiler(Scraper):
 
                 home_team_stats = [item for sublist in home_team_stats for item in sublist]
                 away_team_stats = [item for sublist in away_team_stats for item in sublist]
-                self.cursor.execute('SELECT * FROM player_stats WHERE team_tag IN (SELECT abbreviation FROM teams WHERE team_name LIKE %s) AND player_name IN (SELECT player_name FROM injury_report)', ('%' + home_team + '%',))
+                self.cursor.execute('SELECT * FROM player_stats WHERE team_tag IN (SELECT abbreviation FROM teams WHERE team_name LIKE %s) AND player_name IN (SELECT player_name FROM injury_report)', ('% ' + home_team + '%',))
                 home_team_injuries = self.cursor.fetchall()
-                self.cursor.execute('SELECT * FROM player_stats WHERE team_tag IN (SELECT abbreviation FROM teams WHERE team_name LIKE %s) AND player_name IN (SELECT player_name FROM injury_report)', ('%' + away_team + '%',))
+                self.cursor.execute('SELECT * FROM player_stats WHERE team_tag IN (SELECT abbreviation FROM teams WHERE team_name LIKE %s) AND player_name IN (SELECT player_name FROM injury_report)', ('% ' + away_team + '%',))
                 away_team_injuries = self.cursor.fetchall()
                 self.cursor.execute('SELECT team_name from teams WHERE team_name LIKE %s', ('% ' + home_team + '%',))
                 home_team_full = self.cursor.fetchone()[0]
 
-            
                 home_injured_stats = self.obtain_injury_accumulations(home_team_injuries)
                 away_injured_stats = self.obtain_injury_accumulations(away_team_injuries)
                     
@@ -730,11 +725,11 @@ def main():
     global request_counter
     request_counter = 0
 
-    TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
-    TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    # TeamScraper(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    # InjuredPlayers(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    # RefStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    # PlayerStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
+    # TeamStats(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).update_table()
     DBCompiler(conn, season, cursor, yesterday_date, date, request_counter).targets()
 
