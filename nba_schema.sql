@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS nba_mysql.teams(
+CREATE TABLE IF NOT EXISTS nba.teams(
     abbreviation VARCHAR(50),
     team_name VARCHAR(50),
     season INTEGER,
@@ -6,14 +6,14 @@ CREATE TABLE IF NOT EXISTS nba_mysql.teams(
 );
 
 
-CREATE TABLE IF NOT EXISTS nba_mysql.injury_report(
+CREATE TABLE IF NOT EXISTS nba.injury_report(
     date VARCHAR(50),
     player_name VARCHAR(50),
     description VARCHAR(50),
     UNIQUE (date, player_name)
 );
 
-CREATE TABLE IF NOT EXISTS nba_mysql.officiating (
+CREATE TABLE IF NOT EXISTS nba.officiating (
     official VARCHAR(50),
     season INTEGER,
     G INTEGER,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS nba_mysql.officiating (
     PRIMARY KEY (official, season)
 );
 
-CREATE TABLE IF NOT EXISTS nba_mysql.player_stats (
+CREATE TABLE IF NOT EXISTS nba.player_stats (
     player_name VARCHAR(50),
     season INTEGER,
     team_tag VARCHAR(50),
@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS nba_mysql.player_stats (
     PRIMARY KEY (player_name, season) 
 );
 
-CREATE TABLE IF NOT EXISTS nba_mysql.team_stats(
+CREATE TABLE IF NOT EXISTS nba.team_stats(
     team_name VARCHAR(50),
     season INTEGER, 
     G INTEGER,
@@ -194,7 +194,7 @@ CREATE TABLE IF NOT EXISTS nba_mysql.team_stats(
 );
 
 
-CREATE TABLE IF NOT EXISTS nba_mysql.box_scores (
+CREATE TABLE IF NOT EXISTS nba.box_scores (
     date VARCHAR(50),
     game_identifier VARCHAR(50),
     season INTEGER,
@@ -504,7 +504,7 @@ CREATE TABLE IF NOT EXISTS nba_mysql.box_scores (
 );
 
 
-CREATE TABLE IF NOT EXISTS nba_mysql.predictors(
+CREATE TABLE IF NOT EXISTS nba.predictors(
     date VARCHAR(50),
     season INTEGER,
     team_1_team_name VARCHAR(50),
